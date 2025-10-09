@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Test - Chatbot Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .debug-info {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .fixed { background-color: #d4edda; color: #155724; }
+        .issue { background-color: #f8d7da; color: #721c24; }
+        .improvement { background-color: #fff3cd; color: #856404; }
+        .console-tip {
+            background-color: #e7f3ff;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        code {
+            background-color: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>Scendira Chatbot Quiz - Debug Analysis</h1>
+    
+    <div class="debug-info">
+        <h2>Issues Identified and Fixed</h2>
+        
+        <div class="status fixed">
+            <strong>✅ FIXED: Image Choices Property Mismatch</strong><br>
+            The ChatInterface component was looking for <code>imageChoices</code> but the quiz data used <code>options</code>. 
+            Updated ChatInterface.js to use the correct property name.
+        </div>
+        
+        <div class="status fixed">
+            <strong>✅ FIXED: Input Display Logic</strong><br>
+            Updated the text input display logic to hide when image questions are shown (using <code>options</code> instead of <code>imageChoices</code>).
+        </div>
+        
+        <div class="status fixed">
+            <strong>✅ FIXED: API Key Loading Race Condition</strong><br>
+            Added retry logic with 1-second delay when API key isn't loaded during classification.
+        </div>
+        
+        <div class="status fixed">
+            <strong>✅ IMPROVED: Debug Logging</strong><br>
+            Added comprehensive console logging to track quiz flow and identify issues in browser console.
+        </div>
+    </div>
+    
+    <div class="debug-info">
+        <h2>How the Bug Manifested</h2>
+        <p>When users answered the first question (Q1), the quiz would:</p>
+        <ol>
+            <li>Successfully process the text answer via AI classification</li>
+            <li>Navigate to the next question (which could be an image question)</li>
+            <li><strong>Fail to display images</strong> because ChatInterface looked for wrong property</li>
+            <li><strong>Show no input field</strong> because the condition incorrectly detected image question</li>
+            <li>User sees question text but no way to interact - quiz appears "stuck"</li>
+        </ol>
+    </div>
+    
+    <div class="console-tip">
+        <h3>🔍 Testing Instructions</h3>
+        <p>To verify the fix:</p>
+        <ol>
+            <li>Start the development server: <code>npm start</code></li>
+            <li>Open browser console (F12)</li>
+            <li>Answer the first question with any text</li>
+            <li>Look for console logs showing the quiz flow</li>
+            <li>Verify that image questions now display properly</li>
+        </ol>
+        <p><strong>Expected behavior:</strong> After answering Q1, you should see the next question with clickable images (if it's an image question) or a text input (if it's a text question).</p>
+    </div>
+    
+    <div class="debug-info">
+        <h2>Quiz Flow Summary</h2>
+        <p>The quiz follows this pattern:</p>
+        <ul>
+            <li><strong>Q1:</strong> Text input → AI classification → Path selection</li>
+            <li><strong>Path Questions:</strong> Text input → AI classification → Image question</li>
+            <li><strong>Image Questions:</strong> Click selection → Direct path → Final question</li>
+            <li><strong>Final Questions:</strong> Text input → AI classification → Results</li>
+        </ul>
+    </div>
+    
+    <div class="debug-info">
+        <h2>Files Modified</h2>
+        <ul>
+            <li><code>/src/components/ChatInterface.js</code> - Fixed image choices rendering</li>
+            <li><code>/src/App.js</code> - Added debug logging for quiz flow</li>
+            <li><code>/src/aiClassifier.js</code> - Added API key retry logic</li>
+        </ul>
+    </div>
+</body>
+</html>
