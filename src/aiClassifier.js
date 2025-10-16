@@ -3,7 +3,7 @@ class AIClassifier {
         // Load from environment instead of /api-key.txt
         // Works for Vite: import.meta.env.VITE_OPENAI_API_KEY
         // (If you use CRA, rename to process.env.REACT_APP_OPENAI_API_KEY)
-        this.apiKey = import.meta.env.VITE_OPENAI_API_KEY?.trim() || null;
+        this.apiKey = process.env.REACT_APP_OPENAI_API_KEY?.trim() || null;
     }
 
     async classifyTextAnswer(question, answer, availablePaths) {
