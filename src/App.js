@@ -72,12 +72,11 @@ function App() {
     console.log("Is Image Choice:", isImageChoice);
     console.log("Selected Option:", selectedOption);
 
-    // 1) add user message to chat
+    // show user message
     addUserMessage(answer, isImageChoice, selectedOption);
 
     const currentQuestion = quizData[currentQuestionId];
 
-    // 2) build the answer object
     const answerData = {
       question: currentQuestion.question,
       answer: isImageChoice ? selectedOption.answer : answer,
@@ -85,17 +84,17 @@ function App() {
       ...(isImageChoice && { selectedImage: selectedOption.description }),
     };
 
-    // 3) build the NEXT snapshot of userAnswers right here
+    // 👇 build fresh snapshot
     const nextUserAnswers = {
       ...userAnswers,
       [currentQuestionId]: answerData,
     };
 
-    // 4) update state from this snapshot
+    // update state
     setUserAnswers(nextUserAnswers);
     setQuestionHistory((prev) => [...prev, currentQuestionId]);
 
-    // 5) decide next question using the latest answers if needed
+    // decide next question
     const nextQuestionId = await determineNextQuestion(
       currentQuestion,
       answer,
@@ -105,21 +104,18 @@ function App() {
 
     if (nextQuestionId === "RESULTS") {
       console.log("Going to results screen");
-
       setCurrentScreen("results");
 
-      // IMPORTANT: pass the fresh snapshot to final result logic
+      // 👇 pass the fresh snapshot here
       const finalId = await determineFinalResult(
         currentQuestion,
         nextUserAnswers
       );
       setFinalResult({ id: finalId, data: quizData[finalId] });
     } else {
-      // normal flow
       setCurrentQuestionId(nextQuestionId);
       const nextQuestion = quizData[nextQuestionId];
 
-      // skip classification nodes
       if (nextQuestion.type === "classification" && nextQuestion.next) {
         const finalNextQuestionId = nextQuestion.next;
         setCurrentQuestionId(finalNextQuestionId);

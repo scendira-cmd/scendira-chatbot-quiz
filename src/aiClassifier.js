@@ -9,7 +9,7 @@ class AIClassifier {
   async classifyTextAnswer(question, answer, availablePaths) {
     if (!this.apiKey) {
       console.error("OPENAI_API_KEY not loaded. Using fallback.");
-      return availablePaths[0];
+      return this.localTextRouting(answer, availablePaths);
     }
 
     console.log("AI Classification starting for:", question.id);
@@ -57,47 +57,53 @@ class AIClassifier {
       const classification = data.choices[0].message.content.trim();
 
       if (availablePaths.includes(classification)) return classification;
+
       console.warn("Invalid classification returned:", classification);
-      return availablePaths[0];
+      // fallback to local
+      return this.localTextRouting(answer, availablePaths);
     } catch (error) {
       console.error("Classification error:", error);
-      console.error("Classification error:", error);
-
-      // generic keyword fallback for any question that had multiple paths
-      const answerLower = answer.toLowerCase();
-
-      const keywordMap = [
-        {
-          words: ["love", "romantic", "intimate", "date"],
-          path: "PathA_Choice",
-        },
-        {
-          words: ["confident", "bold", "power", "boss", "office"],
-          path: "PathB_Choice",
-        },
-        {
-          words: ["calm", "peace", "nature", "forest", "quiet"],
-          path: "PathC_Choice",
-        },
-        { words: ["happy", "joy", "fun", "playful"], path: "PathD_Choice" },
-        {
-          words: ["mystery", "secret", "unique", "dark"],
-          path: "PathE_Choice",
-        },
-      ];
-
-      for (const rule of keywordMap) {
-        if (
-          rule.words.some((w) => answerLower.includes(w)) &&
-          availablePaths.includes(rule.path)
-        ) {
-          return rule.path;
-        }
-      }
-
-      // final fallback
-      return availablePaths[0];
+      return this.localTextRouting(answer, availablePaths);
     }
+  }
+
+  localTextRouting(answer, availablePaths) {
+    const a = (answer || "").toLowerCase();
+
+    // more sensible mapping
+    if (
+      a.includes("nostalgic") ||
+      a.includes("memory") ||
+      a.includes("romantic") ||
+      a.includes("love")
+    ) {
+      const romantic =
+        availablePaths.find((p) => p.startsWith("PathA_")) || availablePaths[0];
+      return romantic;
+    }
+    if (a.includes("calm") || a.includes("peace") || a.includes("nature")) {
+      const calm =
+        availablePaths.find((p) => p.startsWith("PathC_")) || availablePaths[0];
+      return calm;
+    }
+    if (a.includes("happy") || a.includes("fun") || a.includes("joy")) {
+      const joy =
+        availablePaths.find((p) => p.startsWith("PathD_")) || availablePaths[0];
+      return joy;
+    }
+    if (a.includes("confident") || a.includes("bold") || a.includes("power")) {
+      const bold =
+        availablePaths.find((p) => p.startsWith("PathB_")) || availablePaths[0];
+      return bold;
+    }
+    if (a.includes("secret") || a.includes("mystery") || a.includes("dark")) {
+      const myst =
+        availablePaths.find((p) => p.startsWith("PathE_")) || availablePaths[0];
+      return myst;
+    }
+
+    // default
+    return availablePaths[0];
   }
 
   buildClassificationPrompt(question, answer, availablePaths) {
