@@ -10,6 +10,7 @@ const ResultsScreen = ({ finalResult, userAnswers, aiClassifier }) => {
   const [recError, setRecError] = useState("");
 
   const hasYT = (p) => !!(p?.yt_v1_url || p?.yt_v2_url || p?.yt_v3_url);
+  const hasShopify = (p) => !!p?.shopify_url;
   const cleanText = (s) => (s || "").toString().replace(/\s+/g, " ").trim();
 
   useEffect(() => {
@@ -197,7 +198,33 @@ const ResultsScreen = ({ finalResult, userAnswers, aiClassifier }) => {
           ) : (
             <div className="rec-list">
               {recs.map((p, i) => (
-                <article key={p.id || i} className="rec-card">
+                <article
+                  key={p.id || i}
+                  className="rec-card"
+                  onClick={() => {
+                    if (hasShopify(p)) {
+                      window.open(
+                        p.shopify_url,
+                        "_blank",
+                        "noopener,noreferrer"
+                      );
+                    }
+                  }}
+                  role={hasShopify(p) ? "button" : undefined}
+                  tabIndex={hasShopify(p) ? 0 : undefined}
+                  onKeyDown={(e) => {
+                    if (
+                      hasShopify(p) &&
+                      (e.key === "Enter" || e.key === " ")
+                    ) {
+                      window.open(
+                        p.shopify_url,
+                        "_blank",
+                        "noopener,noreferrer"
+                      );
+                    }
+                  }}
+                >
                   <div className="rec-rank">#{i + 1}</div>
 
                   <div className="rec-main">
@@ -281,6 +308,7 @@ const ResultsScreen = ({ finalResult, userAnswers, aiClassifier }) => {
                               href={p.yt_v1_url}
                               target="_blank"
                               rel="noreferrer"
+                              onClick={(e) => e.stopPropagation()}
                             >
                               YT Link 1
                             </a>
@@ -290,6 +318,7 @@ const ResultsScreen = ({ finalResult, userAnswers, aiClassifier }) => {
                               href={p.yt_v2_url}
                               target="_blank"
                               rel="noreferrer"
+                              onClick={(e) => e.stopPropagation()}
                             >
                               YT Link 2
                             </a>
@@ -299,6 +328,7 @@ const ResultsScreen = ({ finalResult, userAnswers, aiClassifier }) => {
                               href={p.yt_v3_url}
                               target="_blank"
                               rel="noreferrer"
+                              onClick={(e) => e.stopPropagation()}
                             >
                               YT Link 3
                             </a>
