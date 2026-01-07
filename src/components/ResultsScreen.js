@@ -399,8 +399,25 @@ const ResultsScreen = ({ finalResult, userAnswers, aiClassifier }) => {
         .perfume-recommendations h3 { margin:0 0 12px; }
         .rec-list { display:flex; flex-direction:column; gap:12px; }
 
-        .rec-card { display:flex; gap:14px; align-items:flex-start; border:1px solid var(--border); border-radius:14px; padding:12px; background: var(--panel); }
-        .rec-rank { min-width:46px; height:46px; border-radius:10px; background:#0e1015; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; }
+        .rec-card {
+          display:flex;
+          gap:14px;
+          align-items:flex-start;
+          border:1px solid var(--border);
+          border-radius:14px;
+          padding:12px;
+          background: var(--panel);
+          cursor: pointer;
+          transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+          }
+          .rec-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  border-color: var(--accent);
+}
+
+
+.rec-rank { min-width:46px; height:46px; border-radius:10px; background:#0e1015; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; }
         .rec-main { flex:1; min-width:0; display:flex; flex-direction:column; gap:10px; }
 
         .rec-title-block { display:flex; flex-direction:column; gap:6px; }
@@ -417,7 +434,10 @@ const ResultsScreen = ({ finalResult, userAnswers, aiClassifier }) => {
 
         .yt-links { display:inline-flex; gap:10px; flex-wrap:wrap; }
         .yt-links a { text-decoration: underline; font-weight:600; color: var(--accent); }
-
+        .yt-links a {
+  position: relative;
+  z-index: 2;
+}
         .quiz-summary { margin-top:26px; }
         .journey-steps { display:grid; gap:10px; }
         .journey-step { display:grid; grid-template-columns:30px 1fr; gap:10px; align-items:start; }
