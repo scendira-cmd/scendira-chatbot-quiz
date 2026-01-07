@@ -134,15 +134,49 @@ const ResultsScreen = ({ finalResult, userAnswers, aiClassifier }) => {
             {finalResult.data.description && (
               <p className="description">{finalResult.data.description}</p>
             )}
+
+            {Array.isArray(finalResult.data.notes) &&
+              finalResult.data.notes.length > 0 && (
+                <div className="fragrance-notes">
+                  <h4>Key Notes</h4>
+                  <div className="notes-grid">
+                    {finalResult.data.notes.map((note, index) => (
+                      <span key={index} className="note-tag">
+                        {note}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+            {finalResult.data.mood && (
+              <div className="fragrance-mood">
+                <h4>Perfect For</h4>
+                <p>{finalResult.data.mood}</p>
+              </div>
+            )}
           </div>
         </div>
 
         <div className="personalized-poem">
           <h3>Your Fragrance Poem</h3>
           {isLoadingPoem ? (
-            <div className="poem-loading">Crafting your personalized poem...</div>
+            <div className="poem-loading">
+              <div className="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <p>Crafting your personalized poem...</p>
+            </div>
           ) : (
-            poem.split("\n").map((line, i) => <p key={i}>{line}</p>)
+            <div className="poem-content">
+              {poem.split("\n").map((line, index) => (
+                <p key={index} className="poem-line">
+                  {line}
+                </p>
+              ))}
+            </div>
           )}
         </div>
 
@@ -150,9 +184,17 @@ const ResultsScreen = ({ finalResult, userAnswers, aiClassifier }) => {
           <h3>Your Perfect Fragrance Matches</h3>
 
           {isLoadingRecommendations ? (
-            <p>Finding your perfect fragrance matches...</p>
+            <div className="recommendations-loading">
+              <div className="loading-spinner" />
+              <p>Finding your perfect fragrance matches...</p>
+            </div>
           ) : recError ? (
             <p className="recommendation-error">{recError}</p>
+          ) : recs.length === 0 ? (
+            <p>
+              We couldn’t find matches from your answers. Try refining your
+              choices.
+            </p>
           ) : (
             <div className="rec-list">
               {recs.map((p, i) => (
@@ -186,14 +228,72 @@ const ResultsScreen = ({ finalResult, userAnswers, aiClassifier }) => {
                   <div className="rec-rank">#{i + 1}</div>
 
                   <div className="rec-main">
-                    <h4 className="rec-title">
-                      {p.brand} — {p.name}
-                    </h4>
+                    <div className="rec-title-block">
+                      <h4 className="rec-title">
+                        {p.brand} — {p.name}
+                      </h4>
+                      <div className="rec-chips">
+                        {p.price_tier && (
+                          <span className="chip">{p.price_tier}</span>
+                        )}
+                        {p.gender_positioning && (
+                          <span className="chip">{p.gender_positioning}</span>
+                        )}
+                        {p.scent_family && (
+                          <span className="chip">{p.scent_family}</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {p.mood_tags && (
+                      <div className="rec-row">
+                        <span className="label">Mood :</span>
+                        <span className="value">{p.mood_tags}</span>
+                      </div>
+                    )}
+
+                    {p.occasion_time_of_day && (
+                      <div className="rec-row">
+                        <span className="label">Occasion :</span>
+                        <span className="value">{p.occasion_time_of_day}</span>
+                      </div>
+                    )}
+
+                    {p.seasonality_climate_suitability && (
+                      <div className="rec-row">
+                        <span className="label">Season :</span>
+                        <span className="value">
+                          {p.seasonality_climate_suitability}
+                        </span>
+                      </div>
+                    )}
+
+                    {p.region && (
+                      <div className="rec-row">
+                        <span className="label">Region :</span>
+                        <span className="value">{p.region}</span>
+                      </div>
+                    )}
 
                     {p.notes && (
                       <div className="rec-row">
                         <span className="label">Notes :</span>
                         <span className="value">{p.notes}</span>
+                      </div>
+                    )}
+
+                    {(p.dupe_info || p.dupe_rating) && (
+                      <div className="rec-row">
+                        <span className="label">Similar to :</span>
+                        <span className="value">
+                          {p.dupe_info}
+                          {p.dupe_rating && (
+                            <span className="dupe-rating">
+                              {" "}
+                              (Rating: {p.dupe_rating}/10)
+                            </span>
+                          )}
+                        </span>
                       </div>
                     )}
 
@@ -240,7 +340,24 @@ const ResultsScreen = ({ finalResult, userAnswers, aiClassifier }) => {
             </div>
           )}
         </div>
+
+        <div className="quiz-summary">
+          <h3>Your Journey</h3>
+          <div className="journey-steps">
+            {Object.entries(userAnswers).map(([qid, ans], idx) => (
+              <div key={qid} className="journey-step">
+                <div className="step-number">{idx + 1}</div>
+                <div className="step-content">
+                  <p className="step-question">{ans.question}</p>
+                  <p className="step-answer">{ans.answer}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
+
+      {/* styles block unchanged */}
     </div>
   );
 };
