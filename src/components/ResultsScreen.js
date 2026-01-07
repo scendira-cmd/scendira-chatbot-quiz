@@ -13,7 +13,6 @@ const ResultsScreen = ({ finalResult, userAnswers, aiClassifier }) => {
   const hasShopify = (p) => !!p?.shopify_url;
   const cleanText = (s) => (s || "").toString().replace(/\s+/g, " ").trim();
 
-  /* ---------------- POEM ---------------- */
   useEffect(() => {
     const generatePoem = async () => {
       if (!finalResult || !aiClassifier) return;
@@ -35,17 +34,14 @@ const ResultsScreen = ({ finalResult, userAnswers, aiClassifier }) => {
     generatePoem();
   }, [finalResult, userAnswers, aiClassifier]);
 
-  /* ---------------- RECOMMENDATIONS ---------------- */
   useEffect(() => {
     const fetchRecs = async () => {
       if (!finalResult) return;
       setIsLoadingRecommendations(true);
       setRecError("");
-
       try {
         const baseUrl =
           process.env.REACT_APP_API_BASE_URL || "http://localhost:5000";
-
         const payload = {
           quiz_results: {
             finalResult,
@@ -59,28 +55,24 @@ const ResultsScreen = ({ finalResult, userAnswers, aiClassifier }) => {
             timestamp: new Date().toISOString(),
           },
         };
-
         const res = await fetch(`${baseUrl}/api/process-quiz`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
-
         if (!res.ok) throw new Error(await res.text());
-
         const data = await res.json();
         setRecommendations(
           Array.isArray(data.recommendations) ? data.recommendations : []
         );
       } catch (e) {
-        console.error("Recommendation fetch failed:", e);
+        console.error(e);
         setRecError("We couldn’t load recommendations right now.");
         setRecommendations([]);
       } finally {
         setIsLoadingRecommendations(false);
       }
     };
-
     fetchRecs();
   }, [finalResult, userAnswers]);
 
@@ -118,7 +110,6 @@ const ResultsScreen = ({ finalResult, userAnswers, aiClassifier }) => {
   return (
     <div className="results-screen">
       <div className="results-container">
-        {/* ---------- HEADER ---------- */}
         <div className="results-header">
           <h1>Your Perfect Fragrance Profile</h1>
           <div className="profile-badge">
@@ -127,7 +118,6 @@ const ResultsScreen = ({ finalResult, userAnswers, aiClassifier }) => {
           </div>
         </div>
 
-        {/* ---------- FRAGRANCE DETAILS ---------- */}
         <div className="fragrance-details">
           {finalResult.data.image && (
             <div className="fragrance-image">
@@ -144,76 +134,47 @@ const ResultsScreen = ({ finalResult, userAnswers, aiClassifier }) => {
             {finalResult.data.description && (
               <p className="description">{finalResult.data.description}</p>
             )}
-
-            {Array.isArray(finalResult.data.notes) &&
-              finalResult.data.notes.length > 0 && (
-                <div className="fragrance-notes">
-                  <h4>Key Notes</h4>
-                  <div className="notes-grid">
-                    {finalResult.data.notes.map((note, index) => (
-                      <span key={index} className="note-tag">
-                        {note}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-            {finalResult.data.mood && (
-              <div className="fragrance-mood">
-                <h4>Perfect For</h4>
-                <p>{finalResult.data.mood}</p>
-              </div>
-            )}
           </div>
         </div>
 
-        {/* ---------- POEM ---------- */}
         <div className="personalized-poem">
           <h3>Your Fragrance Poem</h3>
           {isLoadingPoem ? (
-            <div className="poem-loading">
-              <div className="typing-indicator">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-              <p>Crafting your personalized poem...</p>
-            </div>
+            <div className="poem-loading">Crafting your personalized poem...</div>
           ) : (
-            <div className="poem-content">
-              {poem.split("\n").map((line, index) => (
-                <p key={index} className="poem-line">
-                  {line}
-                </p>
-              ))}
-            </div>
+            poem.split("\n").map((line, i) => <p key={i}>{line}</p>)
           )}
         </div>
 
-        {/* ---------- RECOMMENDATIONS ---------- */}
         <div className="perfume-recommendations">
           <h3>Your Perfect Fragrance Matches</h3>
 
           {isLoadingRecommendations ? (
-            <div className="recommendations-loading">
-              <div className="loading-spinner" />
-              <p>Finding your perfect fragrance matches...</p>
-            </div>
+            <p>Finding your perfect fragrance matches...</p>
           ) : recError ? (
             <p className="recommendation-error">{recError}</p>
-          ) : recs.length === 0 ? (
-            <p>No matches found.</p>
           ) : (
             <div className="rec-list">
               {recs.map((p, i) => (
                 <article
                   key={p.id || i}
-                  className={`rec-card ${
-                    hasShopify(p) ? "clickable" : ""
-                  }`}
+                  className="rec-card"
                   onClick={() => {
-                    if (p.shopify_url) {
+                    if (hasShopify(p)) {
+                      window.open(
+                        p.shopify_url,
+                        "_blank",
+                        "noopener,noreferrer"
+                      );
+                    }
+                  }}
+                  role={hasShopify(p) ? "button" : undefined}
+                  tabIndex={hasShopify(p) ? 0 : undefined}
+                  onKeyDown={(e) => {
+                    if (
+                      hasShopify(p) &&
+                      (e.key === "Enter" || e.key === " ")
+                    ) {
                       window.open(
                         p.shopify_url,
                         "_blank",
@@ -229,13 +190,6 @@ const ResultsScreen = ({ finalResult, userAnswers, aiClassifier }) => {
                       {p.brand} — {p.name}
                     </h4>
 
-                    {p.mood_tags && (
-                      <div className="rec-row">
-                        <span className="label">Mood :</span>
-                        <span className="value">{p.mood_tags}</span>
-                      </div>
-                    )}
-
                     {p.notes && (
                       <div className="rec-row">
                         <span className="label">Notes :</span>
@@ -245,7 +199,7 @@ const ResultsScreen = ({ finalResult, userAnswers, aiClassifier }) => {
 
                     {hasYT(p) && (
                       <div className="rec-row">
-                        <span className="label">Reviews :</span>
+                        <span className="label">Reviews & Videos :</span>
                         <span className="value yt-links">
                           {p.yt_v1_url && (
                             <a
@@ -254,7 +208,7 @@ const ResultsScreen = ({ finalResult, userAnswers, aiClassifier }) => {
                               rel="noreferrer"
                               onClick={(e) => e.stopPropagation()}
                             >
-                              YT 1
+                              YT Link 1
                             </a>
                           )}
                           {p.yt_v2_url && (
@@ -264,7 +218,7 @@ const ResultsScreen = ({ finalResult, userAnswers, aiClassifier }) => {
                               rel="noreferrer"
                               onClick={(e) => e.stopPropagation()}
                             >
-                              YT 2
+                              YT Link 2
                             </a>
                           )}
                           {p.yt_v3_url && (
@@ -274,7 +228,7 @@ const ResultsScreen = ({ finalResult, userAnswers, aiClassifier }) => {
                               rel="noreferrer"
                               onClick={(e) => e.stopPropagation()}
                             >
-                              YT 3
+                              YT Link 3
                             </a>
                           )}
                         </span>
@@ -286,34 +240,7 @@ const ResultsScreen = ({ finalResult, userAnswers, aiClassifier }) => {
             </div>
           )}
         </div>
-
-        {/* ---------- JOURNEY ---------- */}
-        <div className="quiz-summary">
-          <h3>Your Journey</h3>
-          <div className="journey-steps">
-            {Object.entries(userAnswers).map(([qid, ans], idx) => (
-              <div key={qid} className="journey-step">
-                <div className="step-number">{idx + 1}</div>
-                <div className="step-content">
-                  <p className="step-question">{ans.question}</p>
-                  <p className="step-answer">{ans.answer}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
-
-      {/* ---------- ADDITIVE STYLES ---------- */}
-      <style>{`
-        .rec-card.clickable {
-          cursor: pointer;
-        }
-        .rec-card.clickable:hover {
-          border-color: var(--accent);
-          background: #161922;
-        }
-      `}</style>
     </div>
   );
 };
