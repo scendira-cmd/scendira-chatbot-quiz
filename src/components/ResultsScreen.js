@@ -198,6 +198,7 @@ const ResultsScreen = ({ finalResult, userAnswers, aiClassifier }) => {
           ) : (
             <div className="rec-list">
               {recs.map((p, i) => (
+                {console.log("REC OBJECT:", p)}
                 <article
                   key={p.id || i}
                   className="rec-card"
