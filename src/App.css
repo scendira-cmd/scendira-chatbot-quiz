@@ -46,11 +46,12 @@ body {
 }
 
 .main-logo {
-  width: 120px;
   height: 120px;
+  width: auto;
   margin-bottom: 20px;
-  filter: invert(1);
+  object-fit: contain;
 }
+
 
 .company-name {
   font-size: 3rem;
@@ -112,8 +113,9 @@ body {
 }
 
 .nav-logo-img {
-  width: 30px;
-  height: 30px;
+  height: 32px;
+  width: auto;
+  object-fit: contain;
 }
 
 .nav-title {

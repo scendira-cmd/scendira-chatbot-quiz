@@ -57,8 +57,8 @@ const Navigation = ({ onPrevious, onRestart, canGoPrevious, isResultsScreen }) =
     <nav className={`nav-panel ${!isVisible ? 'hidden' : ''}`}>
       <div className="nav-content">
         <div className="nav-logo">
-          <img src={`${process.env.PUBLIC_URL}/images/logo.png`} alt="Scendira" className="nav-logo-img" />
-          <span className="nav-title">Scendira</span>
+          <img src={`${process.env.PUBLIC_URL}/images/scendira-logo.png`} alt="Scendira" className="nav-logo-img" />
+          {/* <span className="nav-title">Scendira</span> */}
         </div>
         <button 
           className="prev-button"
